@@ -95,10 +95,10 @@ public class CoreSecurityConfig extends WebSecurityConfigurerAdapter {
         this.errorResponseWriter = errorResponseWriter;
     }
 
-    @Autowired(required = false)
-    public void setCorsConfigurationSource(CorsConfigurationSource corsConfigurationSource) {
-        this.corsConfigurationSource = corsConfigurationSource;
-    }
+//    @Autowired(required = false)
+//    public void setCorsConfigurationSource(CorsConfigurationSource corsConfigurationSource) {
+//        this.corsConfigurationSource = corsConfigurationSource;
+//    }
 
     @Autowired(required = false)
     public void setObjectMapper(ObjectMapper objectMapper) {
