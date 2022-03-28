@@ -4,11 +4,12 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.beans.factory.BeanIsAbstractException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.context.annotation.Bean;
 import org.springframework.security.authentication.AuthenticationProvider;
+import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
+import org.springframework.security.config.annotation.web.configurers.CorsConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.security.web.access.AccessDeniedHandler;
@@ -31,6 +32,7 @@ public class CoreSecurityConfig extends WebSecurityConfigurerAdapter {
     private CoreTokenAuthenticationFilter tokenAuthenticationFilter;
     private ErrorResponseWriter errorResponseWriter;
     private ObjectMapper objectMapper;
+    private CorsConfigurationSource corsConfigurationSource;
     private JwtUsingProperties jwtUsingProperties;
 
     private String serviceName;
@@ -44,8 +46,7 @@ public class CoreSecurityConfig extends WebSecurityConfigurerAdapter {
     protected void configure(HttpSecurity http) throws Exception {
         configureLogout(http);
         http
-                .cors()
-                .and()
+                .cors(corsCustomizer())
                 .csrf().disable()
                 .addFilterBefore(getJWTTokenAuthenticationFilter(), BasicAuthenticationFilter.class)
                 .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)
@@ -92,6 +93,11 @@ public class CoreSecurityConfig extends WebSecurityConfigurerAdapter {
     @Autowired(required = false)
     public void setErrorResponseWriter(ErrorResponseWriter errorResponseWriter) {
         this.errorResponseWriter = errorResponseWriter;
+    }
+
+    @Autowired(required = false)
+    public void setCorsConfigurationSource(CorsConfigurationSource corsConfigurationSource) {
+        this.corsConfigurationSource = corsConfigurationSource;
     }
 
     @Autowired(required = false)
@@ -153,20 +159,29 @@ public class CoreSecurityConfig extends WebSecurityConfigurerAdapter {
         return jwtUsingProperties;
     }
 
-    @Bean
-    CorsConfigurationSource corsConfigurationSource() {
+    //    @Bean
+    public CorsConfigurationSource getCorsConfigurationSource() {
+        if (this.corsConfigurationSource == null) {
+            CorsConfiguration configuration = new CorsConfiguration();
+            configuration.setAllowedHeaders(List.of("Content-Type", "Accept", "X-Requested-With", "remember-me", "Authorization"));
+            configuration.setAllowedMethods(List.of("GET", "HEAD", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"));
+            configuration.setAllowedOrigins(List.of("*"));
+            configuration.setAllowCredentials(true);
+            configuration.setMaxAge(3600L);
 
-        CorsConfiguration configuration = new CorsConfiguration();
-        configuration.setAllowedHeaders(List.of("Content-Type", "Accept", "X-Requested-With", "remember-me", "Authorization"));
-        configuration.setAllowedMethods(List.of("GET", "HEAD", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"));
-        configuration.setAllowedOrigins(List.of("*"));
-        configuration.setAllowCredentials(true);
-        configuration.setMaxAge(3600L);
+            UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+            source.registerCorsConfiguration("/**", configuration);
 
-        final UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
-        source.registerCorsConfiguration("/**", configuration);
+            return source;
+        } else {
+            return this.corsConfigurationSource;
+        }
+    }
 
-        return source;
+    public Customizer<CorsConfigurer<HttpSecurity>> corsCustomizer() {
+        return t -> {
+            t.configurationSource(getCorsConfigurationSource());
+        };
     }
 
 }
