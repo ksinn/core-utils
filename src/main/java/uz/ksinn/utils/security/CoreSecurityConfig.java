@@ -165,7 +165,7 @@ public class CoreSecurityConfig extends WebSecurityConfigurerAdapter {
             CorsConfiguration configuration = new CorsConfiguration();
             configuration.setAllowedHeaders(List.of("Content-Type", "Accept", "X-Requested-With", "remember-me", "Authorization"));
             configuration.setAllowedMethods(List.of("GET", "HEAD", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"));
-            configuration.setAllowedOrigins(List.of("*"));
+            configuration.setAllowedOriginPatterns(List.of("**"));
             configuration.setAllowCredentials(true);
             configuration.setMaxAge(3600L);
 
