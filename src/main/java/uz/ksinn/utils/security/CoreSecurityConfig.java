@@ -163,7 +163,7 @@ public class CoreSecurityConfig extends WebSecurityConfigurerAdapter {
     public CorsConfigurationSource getCorsConfigurationSource() {
         if (this.corsConfigurationSource == null) {
             CorsConfiguration configuration = new CorsConfiguration();
-            configuration.setAllowedHeaders(List.of("Content-Type", "Accept", "X-Requested-With", "remember-me", "Authorization"));
+            configuration.setAllowedHeaders(List.of("Content-Type", "Accept", "X-Requested-With", "remember-me", "Authorization", "Signed-Data", "Signature"));
             configuration.setAllowedMethods(List.of("GET", "HEAD", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"));
             configuration.setAllowedOriginPatterns(List.of("**"));
             configuration.setAllowCredentials(true);
