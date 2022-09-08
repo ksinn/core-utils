@@ -2,6 +2,7 @@ package uz.ksinn.utils.security;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.http.HttpStatus;
+import uz.ksinn.utils.ErrorCodeBuilder;
 import uz.ksinn.utils.advice.response.wrapper.FailureResponse;
 
 import javax.servlet.http.HttpServletResponse;
@@ -14,11 +15,11 @@ import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 public class CoreErrorResponseWriter implements ErrorResponseWriter {
 
     private final ObjectMapper objectMapper;
-    private final String codeFormat;
+    private final ErrorCodeBuilder codeBuilder;
 
-    public CoreErrorResponseWriter(ObjectMapper objectMapper, String codeFormat) {
+    public CoreErrorResponseWriter(ObjectMapper objectMapper, String serviceName) {
         this.objectMapper = objectMapper;
-        this.codeFormat = codeFormat;
+        this.codeBuilder = new ErrorCodeBuilder(serviceName);
     }
 
     @Override
@@ -29,7 +30,7 @@ public class CoreErrorResponseWriter implements ErrorResponseWriter {
         FailureResponse<String> fail = new FailureResponse<>();
         FailureResponse.Data<String> data = new FailureResponse.Data<>();
 
-        data.setCode(codeFormat + code);
+        data.setCode(codeBuilder.buildErrorCode(code));
         data.setTimestamp(LocalDateTime.now());
         data.setMessage(messege);
 

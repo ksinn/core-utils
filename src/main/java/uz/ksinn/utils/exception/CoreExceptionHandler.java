@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.context.request.WebRequest;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
+import uz.ksinn.utils.ErrorCodeBuilder;
 import uz.ksinn.utils.advice.response.wrapper.FailureResponse;
 
 import java.time.LocalDateTime;
@@ -24,14 +25,11 @@ import java.util.stream.Collectors;
 @ControllerAdvice
 public class CoreExceptionHandler extends ResponseEntityExceptionHandler {
 
-    private String codeFormat = "%s";
+    private ErrorCodeBuilder codeBuilder = new ErrorCodeBuilder("srv");
 
     @Autowired(required = false)
     public void setServiceName(@Value("${ksinn.service.short-name}") String serviceShortName) {
-        this.codeFormat = "" + serviceShortName
-                .toUpperCase()
-                .replace(" ", "_").replace("-", "_")
-                + "__%s";
+        this.codeBuilder = new ErrorCodeBuilder(serviceShortName);
     }
 
     @ExceptionHandler(Exception.class)
@@ -85,7 +83,7 @@ public class CoreExceptionHandler extends ResponseEntityExceptionHandler {
         FailureResponse<List<String>> fail = new FailureResponse<>();
         FailureResponse.Data<List<String>> data = new FailureResponse.Data<>();
 
-        data.setCode(String.format(codeFormat, "ERROR"));
+        data.setCode(codeBuilder.buildErrorCode("ERROR"));
         data.setTimestamp(LocalDateTime.now());
         data.setMessage(ex.getMessage());
 
@@ -104,7 +102,7 @@ public class CoreExceptionHandler extends ResponseEntityExceptionHandler {
         FailureResponse.Data<List<String>> data = new FailureResponse.Data<>();
 
         if (code != null) {
-            data.setCode(String.format(codeFormat, code));
+            data.setCode(codeBuilder.buildErrorCode(code));
         }
 
         data.setTimestamp(LocalDateTime.now());

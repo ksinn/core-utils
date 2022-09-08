@@ -66,7 +66,7 @@ public class CoreSecurityConfig extends WebSecurityConfigurerAdapter {
     }
 
     @Autowired(required = false)
-    public void setServiceName(@Value("${ksinn.service.name}") String serviceName) {
+    public void setServiceName(@Value("${ksinn.service.short-name}") String serviceName) {
         this.serviceName = serviceName;
     }
 
@@ -140,7 +140,7 @@ public class CoreSecurityConfig extends WebSecurityConfigurerAdapter {
 
     public ErrorResponseWriter getErrorResponseWriter() {
         if (this.errorResponseWriter == null) {
-            this.errorResponseWriter = new CoreErrorResponseWriter(getObjectMapper(), serviceName != null ? "SRV_" + serviceName.toUpperCase() + "__" : "");
+            this.errorResponseWriter = new CoreErrorResponseWriter(getObjectMapper(), serviceName == null ? "SRV" : serviceName);
         }
         return errorResponseWriter;
     }
