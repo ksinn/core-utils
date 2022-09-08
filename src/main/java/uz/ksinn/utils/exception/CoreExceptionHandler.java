@@ -27,8 +27,11 @@ public class CoreExceptionHandler extends ResponseEntityExceptionHandler {
     private String codeFormat = "%s";
 
     @Autowired(required = false)
-    public void setServiceName(@Value("${ksinn.service.name}") String serviceName) {
-        this.codeFormat = "SRV_" + serviceName.toUpperCase() + "__%s";
+    public void setServiceName(@Value("${ksinn.service.short-name}") String serviceShortName) {
+        this.codeFormat = "" + serviceShortName
+                .toUpperCase()
+                .replace(" ", "_").replace("-", "_")
+                + "__%s";
     }
 
     @ExceptionHandler(Exception.class)
